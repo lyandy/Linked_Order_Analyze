@@ -24,7 +24,7 @@ App启动时间优化 二进制重排技术 线下量化预分析工具
 ---
 
 使用之前：
-1. 使用xcode编译出 linked map.txt 和 lib.order 文件，并放在同一个目录
+1. 使用xcode编译出 linked_map.txt 和 lib.order 文件，并放在同一个目录
 2. 修改下面的路径到上述两个文件的根目录
 ```
 // 链接文件和order文件根目录
@@ -36,7 +36,7 @@ static NSString * const BASE_PATH = @"/Users/liyang/Desktop/1";
 最终输出示例：
 ```
 ---> 分析结果：
- lined map __Text(链接文件)：
+ linked map __Text(链接文件)：
    起始地址：0x100006A60
    结束地址：0x1021E75E8
    分配的虚拟内存页个数：2169

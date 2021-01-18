@@ -12,14 +12,13 @@
  二进制重排技术 线下量化分析总体思路：
  1. 读取 Linked Map 文件，获取 __Text 代码区的起始地址和块大小，分析得到需要分配的虚拟内存页个数
  2. 获取 __Text 代码区 所有symbol的地址、大小和具体符号，存入字典
- 3. 根据字典中起始地址和所有symbol大小总和，校验是否和1描述相符 // 发现有重复 symbol 和 symbol地址跳跃现象
- 4. 分析 二进制重排文件order所包含的symbol，和2中字典做映射，得到symbol对应的地址和内存占用大小
- 5. 分析 order文件中所包含的symbol，得到占用原始虚拟内存页个数
- 6. 将 order文件中所包含的symbol内存占用相加，分析得到 重排后所占虚拟内存页个数
+ 3. 根据字典中的起始地址和所有symbol大小的总和，校验是否和1描述相符 (发现有重复 symbol 和 symbol地址跳跃现象)
+ 4. 分析 二进制重排文件order所包含的symbol，和2中字典做映射，得到order中symbol对应的地址和内存占用大小
+ 5. 分析 order文件中所包含的symbol，得到需要占用的原始虚拟内存页个数
+ 6. 将 order文件中所包含的symbol内存占用大小相加，分析得到重排后所占虚拟内存页个数
  7. 原始虚拟内存页个数 - 重排后所占虚拟内存页个数 = 节省的虚拟内存页个数
  8. 节省的虚拟内存页个数 * 每一个内存缺页中断大致的处理时间 = 节省的内存缺页中断处理总时间
  */
-
 // 链接文件和order文件根目录
 static NSString * const BASE_PATH = @"/Users/liyang/Desktop/1";
 // 链接文件名
@@ -136,10 +135,10 @@ static double const PAGE_FAULT_CONST_ESTIMATE_TIME = 0.5;
             // 计算 linked __Text 符号个数 用来和 1 做反向验证
             linkedTextSymbolLineCount++;
             
-            // 地址跳跃处理
+            // 地址跳跃检测和记录
             if (linkedTextNextSymbolPreComputeStartDecialValue != 0 && linkedTextNextSymbolPreComputeStartDecialValue != linkedTextSymbolStartAddressDecimalValue)
             {
-                [linkedTextSymbolStartAddressJumpedArrM addObject:linkedTextSymbolLine];
+                [linkedTextSymbolStartAddressJumpedArrM addObject:linkedTextSymbolLine ?: @""];
             }
             linkedTextNextSymbolPreComputeStartDecialValue = linkedTextSymbolStartAddressDecimalValue + linkedTextSymbolSizeDecimalValue;
             
@@ -167,6 +166,8 @@ static double const PAGE_FAULT_CONST_ESTIMATE_TIME = 0.5;
     __block NSMutableSet<NSNumber *> *orderVMPageSetM = [NSMutableSet set];
     // order 中 所有 symbol 占用大小总和，除以 VM_PAGE_SIZE 可以得到排序后占用的连续虚拟内页个数
     __block unsigned long long orderSumAllSymbolSize = 0;
+    // order 中 未命中 section __Text 的symbol集合
+    __block NSMutableArray<NSString *> *orderUntargetSymbolsArrM = [NSMutableArray array];
     
     // order 文件内容
     NSError *orderContentError = nil;
@@ -187,18 +188,25 @@ static double const PAGE_FAULT_CONST_ESTIMATE_TIME = 0.5;
         // 得到 order 一行行 symbol 符号
         NSString *orderSymbolLine = [orderpFileContents substringWithRange:[result rangeAtIndex:1]];
         
-        // 计算 order symbol 行数
-        orderSymbolLineCount++;
-    
         NSArray<NSNumber *> *arr = linkedTextDictM[orderSymbolLine];
         if (arr == nil)
         {
             // order 对应 linked 文件，未命中的情况
-            NSLog(@"");
+            [orderUntargetSymbolsArrM addObject:orderSymbolLine ?: @""];
+            return;
         }
+        
+        // 计算 order symbol 行数
+        orderSymbolLineCount++;
         
         // 获得 symbole 十进制 的地址
         unsigned long long orderSymbolStartAddressDecimalValue = [arr.firstObject unsignedLongLongValue];
+        if (orderSymbolStartAddressDecimalValue < sectionTextStartAddressDecimalValue || sectionTextStartAddressDecimalValue > sectionTextEndAddressDecimalValue)
+        {
+            // 发现非法地址，不在 __Text 起始地址和终止地址之间
+            abort();
+            return;
+        }
         unsigned long long orderSymbolRelativeStartAddressDecimalValue = orderSymbolStartAddressDecimalValue - sectionTextStartAddressDecimalValue;
         // 得到当前 symbole 所在的内存页序号index
         unsigned long long orderSymbolVMPageIndex = orderSymbolRelativeStartAddressDecimalValue / VM_PAGE_SIZE;
@@ -211,9 +219,10 @@ static double const PAGE_FAULT_CONST_ESTIMATE_TIME = 0.5;
     
     // 6. 将 order文件中所包含的symbol内存占用相加，分析得到 重排后所占虚拟内存页个数
     unsigned long long orderSymbolAllVMPageCount = orderSumAllSymbolSize / VM_PAGE_SIZE + 1;
+    if (orderSymbolAllVMPageCount > orderVMPageSetM.count) orderSymbolAllVMPageCount = orderVMPageSetM.count;
     
     printf("\n---> 分析结果：");
-    printf("\n lined map __Text(链接文件)：");
+    printf("\n linked map __Text(链接文件)：");
     printf("\n   起始地址：%s", [[Util hexFromDecimal:sectionTextStartAddressDecimalValue] UTF8String]);
     printf("\n   结束地址：%s", [[Util hexFromDecimal:sectionTextEndAddressDecimalValue] UTF8String]);
     printf("\n   分配的虚拟内存页个数：%llu", sectionTextLinkedVMPageCount);
