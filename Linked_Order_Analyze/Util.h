@@ -9,7 +9,7 @@
 
 @interface Util : NSObject
 
-+ (unsigned long long)decialFromHexStr:(NSString *)hexStr;
++ (unsigned long long)decimalFromHexStr:(NSString *)hexStr;
 
 + (NSString *)hexFromDecimal:(unsigned long long)decimal;
 

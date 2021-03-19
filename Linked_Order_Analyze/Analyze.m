@@ -19,7 +19,7 @@
  7. 原始虚拟内存页个数 - 重排后所占虚拟内存页个数 = 节省的虚拟内存页个数
  8. 节省的虚拟内存页个数 * 每一个内存缺页中断大致的处理时间 = 节省的内存缺页中断处理总时间
  */
-// 链接文件和order文件根目录
+// 链接文件和order文件根目录 注意：换成自己的路径字符串
 static NSString * const BASE_PATH = @"/Users/liyang/Desktop/1";
 // 链接文件名
 static NSString * const LINKED_MAP = @"linked_map.txt";
@@ -77,12 +77,12 @@ static double const PAGE_FAULT_CONST_ESTIMATE_TIME = 0.5;
         
         // 匹配 section __Text __text 首地址
         NSString *sectionTextStartAddressHexStr = [linkedMapFileContents substringWithRange:[result rangeAtIndex:1]];
-        sectionTextStartAddressDecimalValue = [Util decialFromHexStr:sectionTextStartAddressHexStr];
+        sectionTextStartAddressDecimalValue = [Util decimalFromHexStr:sectionTextStartAddressHexStr];
         // 匹配 section __Text __text 内存映射大小
         NSString *sectionTextSizeHexStr = [linkedMapFileContents substringWithRange:[result rangeAtIndex:2]];
         
         // 分析分配的虚拟内存页个数
-        unsigned long long section_text_decimal_size = [Util decialFromHexStr:sectionTextSizeHexStr];
+        unsigned long long section_text_decimal_size = [Util decimalFromHexStr:sectionTextSizeHexStr];
         sectionTextLinkedVMPageCount = section_text_decimal_size / VM_PAGE_SIZE + 1;
         
         NSLog(@"----linked __text vm count:%llu", sectionTextLinkedVMPageCount);
@@ -117,11 +117,11 @@ static double const PAGE_FAULT_CONST_ESTIMATE_TIME = 0.5;
         
         // symble 地址
         NSString *linkedTextSymbolStartAddressHexStr = [linkedMapFileContents substringWithRange:[result rangeAtIndex:1]];
-        unsigned long long linkedTextSymbolStartAddressDecimalValue = [Util decialFromHexStr:linkedTextSymbolStartAddressHexStr];
+        unsigned long long linkedTextSymbolStartAddressDecimalValue = [Util decimalFromHexStr:linkedTextSymbolStartAddressHexStr];
         
         // symbol 大小
         NSString *linkedTextSymbolSizeHexStr = [linkedMapFileContents substringWithRange:[result rangeAtIndex:2]];
-        unsigned long long linkedTextSymbolSizeDecimalValue = [Util decialFromHexStr:linkedTextSymbolSizeHexStr];
+        unsigned long long linkedTextSymbolSizeDecimalValue = [Util decimalFromHexStr:linkedTextSymbolSizeHexStr];
         // 具体的 symbol
         NSString *symbol = [linkedMapFileContents substringWithRange:[result rangeAtIndex:3]];
         

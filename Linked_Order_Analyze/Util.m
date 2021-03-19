@@ -9,7 +9,7 @@
 
 @implementation Util
 
-+ (unsigned long long)decialFromHexStr:(NSString *)hexStr
++ (unsigned long long)decimalFromHexStr:(NSString *)hexStr
 {
     unsigned long long result = 0;
     NSScanner *scanner = [NSScanner scannerWithString:hexStr];
