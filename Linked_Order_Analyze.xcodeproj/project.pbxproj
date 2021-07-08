@@ -10,6 +10,7 @@
 		B6313D6F25B4341C0035448B /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = B6313D6E25B4341C0035448B /* main.m */; };
 		B6313D7825B434280035448B /* Util.m in Sources */ = {isa = PBXBuildFile; fileRef = B6313D7725B434280035448B /* Util.m */; };
 		B6313D7C25B4348C0035448B /* Analyze.m in Sources */ = {isa = PBXBuildFile; fileRef = B6313D7B25B4348C0035448B /* Analyze.m */; };
+		B6856E142696E8E800ADAB16 /* MMTracePCGuard.m in Sources */ = {isa = PBXBuildFile; fileRef = B6856E132696E8E800ADAB16 /* MMTracePCGuard.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -31,6 +32,8 @@
 		B6313D7725B434280035448B /* Util.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Util.m; sourceTree = "<group>"; };
 		B6313D7A25B4348C0035448B /* Analyze.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Analyze.h; sourceTree = "<group>"; };
 		B6313D7B25B4348C0035448B /* Analyze.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Analyze.m; sourceTree = "<group>"; };
+		B6856E122696E8E800ADAB16 /* MMTracePCGuard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMTracePCGuard.h; sourceTree = "<group>"; };
+		B6856E132696E8E800ADAB16 /* MMTracePCGuard.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MMTracePCGuard.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -63,6 +66,8 @@
 		B6313D6D25B4341C0035448B /* Linked_Order_Analyze */ = {
 			isa = PBXGroup;
 			children = (
+				B6856E122696E8E800ADAB16 /* MMTracePCGuard.h */,
+				B6856E132696E8E800ADAB16 /* MMTracePCGuard.m */,
 				B6313D6E25B4341C0035448B /* main.m */,
 				B6313D7A25B4348C0035448B /* Analyze.h */,
 				B6313D7B25B4348C0035448B /* Analyze.m */,
@@ -130,6 +135,7 @@
 			files = (
 				B6313D7C25B4348C0035448B /* Analyze.m in Sources */,
 				B6313D6F25B4341C0035448B /* main.m in Sources */,
+				B6856E142696E8E800ADAB16 /* MMTracePCGuard.m in Sources */,
 				B6313D7825B434280035448B /* Util.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
