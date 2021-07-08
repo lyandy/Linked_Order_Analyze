@@ -3,7 +3,7 @@ App启动时间优化 二进制重排技术 线下量化预分析工具
 
 目的：在没有上线之前可以分析出对App启动优化节省的大致时间，起到指导作用。(_具体能优化多少，以线上数据为准_)
 
-建议：每隔三个月执行一次二进制重排更新，确保 PageFault 次数维持在一个降低的稳定的水平
+建议：每隔三个月执行一次二进制重排更新，确保 PageFault 次数维持在一个较低的稳定的水平
 
 ---
 
@@ -33,27 +33,27 @@ static NSString * const BASE_PATH = @"/Users/liyang/Desktop/1";
 
 ### 如何编译出 linked_map.txt 文件
 
-1. 在 _Target -> Build Settings_ 下，找到 _Write Link Map File_ 来设置输出与否 , 默认是 no .
+1. 在 __Target -> Build Settings__ 下，找到 __Write Link Map File__ 来设置输出与否 , 默认是 no .
 
-2. 修改完毕之后，_clean_ 一下，运行工程，_Products -> Show in Finder_，在mach-o文件上上层目录 _Intermediates.noindex_ 文件下找到一个txt文件。将其重命名为linked_map.txt
+2. 修改完毕之后，__clean__ 一下，运行工程，__Products -> Show in Finder__，在mach-o文件上上层目录 __Intermediates.noindex__文件下找到一个txt文件。将其重命名为linked_map.txt
 
 --- 
 
 ### 如何编译出 lb.order 文件
 
-1. 在目标工程 _Target -> Build Settings -> Other C Flags_ 添加 _-fsanitize-coverage=func,trace-pc-guard_。
+1. 在目标工程 __Target -> Build Settings -> Other C Flags__ 添加 __-fsanitize-coverage=func,trace-pc-guard__。
 
-    如果有swfit代码，也要在 _Other Swift Flags_ 添加 _-sanitize-coverage=func_ 和_-sanitize=undefined_ 
+    如果有swfit代码，也要在 __Other Swift Flags__ 添加 __-sanitize-coverage=func__ 和__-sanitize=undefined__
     
     (如果有源码编译的Framework也要添加这些配置。CocoaPods引入的第三方库不建议添加此配置）
 
-2. 将 _MMTracePCGuard_ 文件放入到目标工程
-3. 将 _+[MMTracePCGuard analyze]_ 方法放到目标工程认为可以启动结束的位置调用，执行clean->build->run。根据自身工程复杂度的情况，等待几分钟或者十几分钟，就会在沙盒 Documents 的 temp 目录生成 lb.order 文件
+2. 将 __MMTracePCGuard__ 文件放入到目标工程
+3. 将 __+[MMTracePCGuard analyze]__ 方法放到目标工程认为可以启动结束的位置调用，执行 __clean->build->run__。根据自身工程复杂度的情况，等待几分钟或者十几分钟，就会在沙盒 Documents 的 temp 目录生成 lb.order 文件
 
 
 ---
 
-最终输出示例：
+### 最终输出示例：
 ```
 ---> 分析结果：
  linked map __Text(链接文件)：
@@ -67,5 +67,31 @@ static NSString * const BASE_PATH = @"/Users/liyang/Desktop/1";
    内存缺页中断减少的个数：293
    预估节省的时间：146ms
    ```
+
+---
+
+### 如果做反向验证
+
+用二进制重排之后的工程，再次分别编译出 linked_map.txt 和 lb.order 文件，使用此工具再次运行检查。
+
+可以得到如下结果
+
+```
+---> 分析结果：
+ linked map __Text(链接文件)：
+   起始地址：0x100006A60
+   结束地址：0x1021E75E8
+   分配的虚拟内存页个数：2169
+ order symbol(重排文件)：
+   需要重排的符号个数：4630
+   分布的虚拟内存页个数：99
+   二进制重排后分布的虚拟内存页个数：99
+   内存缺页中断减少的个数：0
+   预估节省的时间：0ms
+   ```
+
+可以看出重排后的二进制文件已经不需要再次进行重排了。
+
+至此，二进制重排线下预评估结束
 
 ---
